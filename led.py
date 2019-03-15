@@ -1,9 +1,19 @@
 import RPi.GPIO as GPIO
 import time
 
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+import pyrebase
+
+# Don't make this info public!!!
+config = {
+  "apiKey": "AIzaSyB1X48SrnZyb0IE4j8UDooTmqmX7-cdgXY",
+  "authDomain": "smart-home-pwa.firebaseapp.com",
+  "databaseURL": "https://smart-home-pwa.firebaseio.com",
+  "storageBucket": "smart-home-pwa.appspot.com"
+}
+
+firebase = pyrebase.initialize_app(config)
+
+db = firebase.database()
 
 #GPIO set up led pins
 GPIO.setmode(GPIO.BCM)
@@ -11,26 +21,16 @@ GPIO.setwarnings(False)
 GPIO.setup(17, GPIO.OUT)
 GPIO.setup(27, GPIO.OUT)
 
-# Use the application default credentials
-cred = credentials.Certificate('/home/pi/Documents/FYP/ServiceAccountKey.json')
-default_app = firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-# query for document - adds doc if it doesn't exist
-# TO DO - GET DOC OF A SPECIFIC USER
-doc_ref = db.collection(u'RPi').document(u'system1')
-
 # MAIN FUNCTION
 while True:
-  # get document data
-  doc = doc_ref.get()
 
+  # query for document - adds doc if it doesn't exist
+  # TO DO - GET DOC OF A SPECIFIC USER
   #get led values set the gpio values
-  led1Val = doc.get("led1")
-  GPIO.output(27, led1Val)
-  led2Val = doc.get("led2")
-  GPIO.output(17, led2Val)
+  led1Val = db.child("system1/led1").get()
+  GPIO.output(27, led1Val.val())
+  led2Val = db.child("system1/led2").get()
+  GPIO.output(17, led2Val.val())
 
   # sleep for 1 second so that file isn't rinsing operations usage
   time.sleep(1)

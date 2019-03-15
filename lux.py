@@ -1,10 +1,21 @@
 import smbus
 import time
 
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+import pyrebase
 
+# Don't make this info public!!!
+config = {
+  "apiKey": "AIzaSyB1X48SrnZyb0IE4j8UDooTmqmX7-cdgXY",
+  "authDomain": "smart-home-pwa.firebaseapp.com",
+  "databaseURL": "https://smart-home-pwa.firebaseio.com",
+  "storageBucket": "smart-home-pwa.appspot.com"
+}
+
+firebase = pyrebase.initialize_app(config)
+
+db = firebase.database()
+
+# Get lux sensor values
 def lux_reading():
    # Get I2C bus
   bus = smbus.SMBus(1)
@@ -18,7 +29,7 @@ def lux_reading():
   #		0x02(02)	Nominal integration time = 402ms
   bus.write_byte_data(0x39, 0x01 | 0x80, 0x02)
 
-  time.sleep(5)
+  time.sleep(0.5)
 
   # Read data back from 0x0C(12) with command register, 0x80(128), 2 bytes
   # ch0 LSB, ch0 MSB
@@ -35,36 +46,31 @@ def lux_reading():
   visible_lux = ch0 - ch1
   return visible_lux
 
-# Use the application default credentials
-cred = credentials.Certificate('/home/pi/Documents/FYP/ServiceAccountKey.json')
-default_app = firebase_admin.initialize_app(cred)
 
-db = firestore.client()
 
 # query for document - adds doc if it doesn't exist
 # TO DO - GET DOC OF A SPECIFIC USER
-doc_ref = db.collection(u'RPi').document(u'system1')
 
 while True:
   # get lux value
   lux = lux_reading()
   # set lux value in firestore
-  doc_ref.update({
-    u'lux': lux
+  db.update({
+    u'system1/lux': lux
   })
 
   #automate led 
   # if lux is below threshold, turn on led2
   if lux < 200:
-    doc_ref.update({
-      u'led2': True
+    db.update({
+      u'system1/led2': True
     })
   else:
-    doc_ref.update({
-      u'led2': False
+    db.update({
+      u'system1/led2': False
     })
   # sleep for 1 second so that file isn't rinsing operations usage
-  time.sleep(5)
+  time.sleep(1)
 
 # Lux value guide table
 
