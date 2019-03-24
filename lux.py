@@ -17,7 +17,8 @@ db = firebase.database()
 
 # Get lux sensor values
 def lux_reading():
-   # Get I2C bus
+  # Get i2c scl and sda address of sensor 
+  # $ i2cdetect -y 1, useful to detect i2c sensors - 0x39
   bus = smbus.SMBus(1)
 
   # TSL2561 address, 0x39(57)
@@ -60,8 +61,12 @@ while True:
   })
 
   #automate led 
+  #get threshold value  
+  # TO DO - GET DOC OF A SPECIFIC USER
+  threshold = db.child("system1/luxThreshold").get().val()
+
   # if lux is below threshold, turn on led2
-  if lux < 200:
+  if lux < threshold:
     db.update({
       u'system1/led2': True
     })
@@ -70,7 +75,7 @@ while True:
       u'system1/led2': False
     })
   # sleep for 1 second so that file isn't rinsing operations usage
-  time.sleep(1)
+  time.sleep(0.25)
 
 # Lux value guide table
 
@@ -84,4 +89,3 @@ while True:
 # Dim Outdoors	        5001	      10,000	    7500	          7
 # Cloudy Outdoors	      10,001	    30,000	    20,000	        8
 # Direct Sunlight	      30,001	    100,000	    65,000	        9
-
