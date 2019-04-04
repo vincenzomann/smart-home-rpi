@@ -36,10 +36,10 @@ try:
     #get led values set the gpio values
     #manual light
     led1Val = db.child("system1/led1").get()
-    GPIO.output(27, led1Val.val())
+    GPIO.output(17, led1Val.val())
     #auto light
     led2Val = db.child("system1/led2").get()
-    GPIO.output(17, led2Val.val())
+    GPIO.output(27, led2Val.val())
     #motion light
     led3Val = db.child("system1/led3").get()
     GPIO.output(22, led3Val.val())

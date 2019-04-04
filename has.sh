@@ -1,8 +1,9 @@
 #!/bin/bash
 
-python3 led.py &
-python3 lux.py &
-python3 pir.py &
-python3 temp.py
+python led.py &
+python lux.py &
+python pir.py &
+python temp.py &
+python door.py
 
 exit 0

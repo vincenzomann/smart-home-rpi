@@ -16,6 +16,7 @@ firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
 # Get lux sensor values
+# I2C1 SDA SCL pins 2 and 3
 def lux_reading():
   # Get i2c scl and sda address of sensor 
   # $ i2cdetect -y 1, useful to detect i2c sensors - 0x39
